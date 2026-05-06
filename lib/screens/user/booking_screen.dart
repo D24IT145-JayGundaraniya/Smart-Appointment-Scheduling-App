@@ -13,7 +13,16 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   final _nameController = TextEditingController();
-  final _serviceController = TextEditingController();
+  String _selectedService = 'Basic Wash'; // Default service
+  
+  final List<String> _carWashServices = [
+    'Basic Wash',
+    'Full Detail',
+    'Interior Cleaning',
+    'Engine Wash',
+    'Ceramic Coating',
+  ];
+
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 9, minute: 0);
 
@@ -34,10 +43,9 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _bookAppointment() async {
     final name = _nameController.text.trim();
-    final service = _serviceController.text.trim();
 
-    if (name.isEmpty || service.isEmpty) {
-      _showError('Please fill all fields');
+    if (name.isEmpty) {
+      _showError('Please enter your name');
       return;
     }
 
@@ -51,18 +59,18 @@ class _BookingScreenState extends State<BookingScreen> {
     final success = await provider.addAppointment(Appointment(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
-      serviceType: service,
+      serviceType: _selectedService,
       dateTime: dt,
       queueNumber: provider.appointments.length + 1,
       status: 'Scheduled',
     ));
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booked!'), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wash Booked!'), backgroundColor: Colors.green));
       _nameController.clear();
-      _serviceController.clear();
+      setState(() => _selectedService = 'Basic Wash');
     } else {
-      _showError('Slot already taken!');
+      _showError('This slot is already reserved!');
     }
   }
 
@@ -74,17 +82,36 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: const Text('New Appointment', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: const Text('Book a Wash', style: TextStyle(fontWeight: FontWeight.bold))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Personal Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+            const Text('Customer Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
             const SizedBox(height: 16),
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline))),
+            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Customer Name', prefixIcon: Icon(Icons.person_outline))),
+            const SizedBox(height: 24),
+            const Text('Select Service', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
             const SizedBox(height: 16),
-            TextField(controller: _serviceController, decoration: const InputDecoration(labelText: 'Service Type', prefixIcon: Icon(Icons.medical_services_outlined))),
+            DropdownButtonFormField<String>(
+              value: _selectedService,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.directions_car_filled_outlined),
+                labelText: 'Service Type',
+              ),
+              items: _carWashServices.map((String service) {
+                return DropdownMenuItem<String>(
+                  value: service,
+                  child: Text(service),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() => _selectedService = newValue);
+                }
+              },
+            ),
             const SizedBox(height: 32),
             const Text('Schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
             const SizedBox(height: 16),
@@ -112,7 +139,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Confirm Booking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text('Confirm Wash Booking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ],

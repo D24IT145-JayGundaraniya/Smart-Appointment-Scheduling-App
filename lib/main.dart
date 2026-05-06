@@ -27,7 +27,7 @@ class SmartAppointmentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Smart Appointment Scheduling',
+      title: 'AutoWash Scheduler',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -37,7 +37,7 @@ class SmartAppointmentApp extends StatelessWidget {
           secondary: const Color(0xFF4F46E5),
           surface: const Color(0xFFF8FAFC),
         ),
-        fontFamily: 'Inter', // Modern UI font (defaults to system if not found)
+        fontFamily: 'Inter',
         cardTheme: CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -78,37 +78,35 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  // List of all screens for navigation
   final List<Widget> _screens = [
     const BookingScreen(),
     const QueueStatusScreen(),
     const SearchScreen(),
-    const DashboardScreen(), // Combined Admin Dashboard & List
+    const DashboardScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Drawer for extra navigation links (Premium feel)
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.indigo),
+              decoration: BoxDecoration(color: Color(0xFF6366F1)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(backgroundColor: Colors.white, radius: 30, child: Icon(Icons.person, color: Colors.indigo)),
+                  CircleAvatar(backgroundColor: Colors.white, radius: 30, child: Icon(Icons.directions_car, color: Color(0xFF6366F1))),
                   SizedBox(height: 10),
-                  Text('Smart Scheduler', style: TextStyle(color: Colors.white, fontSize: 20)),
-                  Text('Offline-First Edition', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text('AutoWash Pro', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text('Smart Queue Management', style: TextStyle(color: Colors.white70, fontSize: 12)),
                 ],
               ),
             ),
-            _DrawerItem(icon: Icons.calendar_today, label: 'Book Appointment', index: 0, selectedIndex: _selectedIndex, onTap: _onItemTapped),
+            _DrawerItem(icon: Icons.calendar_today, label: 'Book a Wash', index: 0, selectedIndex: _selectedIndex, onTap: _onItemTapped),
             _DrawerItem(icon: Icons.line_weight, label: 'Live Queue', index: 1, selectedIndex: _selectedIndex, onTap: _onItemTapped),
-            _DrawerItem(icon: Icons.search, label: 'Search & Filter', index: 2, selectedIndex: _selectedIndex, onTap: _onItemTapped),
+            _DrawerItem(icon: Icons.search, label: 'Search Bookings', index: 2, selectedIndex: _selectedIndex, onTap: _onItemTapped),
             const Divider(),
             _DrawerItem(icon: Icons.admin_panel_settings, label: 'Admin Dashboard', index: 3, selectedIndex: _selectedIndex, onTap: _onItemTapped),
           ],
@@ -132,7 +130,6 @@ class _MainNavigationState extends State<MainNavigation> {
     setState(() {
       _selectedIndex = index;
     });
-    // Close drawer if it's open
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
@@ -151,8 +148,8 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: selectedIndex == index ? Colors.indigo : null),
-      title: Text(label, style: TextStyle(color: selectedIndex == index ? Colors.indigo : null, fontWeight: selectedIndex == index ? FontWeight.bold : null)),
+      leading: Icon(icon, color: selectedIndex == index ? const Color(0xFF6366F1) : null),
+      title: Text(label, style: TextStyle(color: selectedIndex == index ? const Color(0xFF6366F1) : null, fontWeight: selectedIndex == index ? FontWeight.bold : null)),
       onTap: () => onTap(index),
       selected: selectedIndex == index,
     );

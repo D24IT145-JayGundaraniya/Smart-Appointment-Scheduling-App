@@ -8,7 +8,9 @@ class HiveService {
     await Hive.initFlutter();
     Hive.registerAdapter(AppointmentAdapter());
     
-    // Data will now persist across restarts
+    // CLEARING ALL PREVIOUS DATA FOR NEW APP START
+    await Hive.deleteBoxFromDisk(appointmentBoxName);
+    
     await Hive.openBox<Appointment>(appointmentBoxName);
   }
 

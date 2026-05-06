@@ -9,7 +9,7 @@ class QueueStatusScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: const Text('Live Queue', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: const Text('Wash Queue', style: TextStyle(fontWeight: FontWeight.bold))),
       body: Consumer<AppointmentProvider>(
         builder: (context, provider, child) {
           final queue = provider.activeQueue;
@@ -20,9 +20,9 @@ class QueueStatusScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.hourglass_empty_rounded, size: 64, color: Colors.grey.shade300),
+                  Icon(Icons.directions_car_outlined, size: 64, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
-                  const Text('No active sessions right now', style: TextStyle(color: Colors.grey)),
+                  const Text('No cars in queue right now', style: TextStyle(color: Colors.grey)),
                 ],
               ),
             );
@@ -33,7 +33,7 @@ class QueueStatusScreen extends StatelessWidget {
             children: [
               _buildServingCard(context, current),
               const SizedBox(height: 32),
-              const Text('Up Next', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+              const Text('In Line', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
               const SizedBox(height: 16),
               ...queue.skip(current != null ? 1 : 0).indexed.map((item) {
                 final index = item.$1;
@@ -67,7 +67,7 @@ class QueueStatusScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('NOW SERVING', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+              const Text('CURRENTLY WASHING', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
@@ -76,15 +76,15 @@ class QueueStatusScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Text(current?.name ?? 'Waiting...', style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(current?.name ?? 'Ready...', style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(current?.serviceType ?? 'Ready for next patient', style: const TextStyle(color: Colors.white60, fontSize: 16)),
+          Text(current?.serviceType ?? 'Ready for next vehicle', style: const TextStyle(color: Colors.white60, fontSize: 16)),
           const Divider(height: 40, color: Colors.white24),
           Row(
             children: [
               _InfoBadge(label: 'Token', value: '#${current?.queueNumber ?? '--'}'),
               const SizedBox(width: 24),
-              const _InfoBadge(label: 'Wait Time', value: '0 min'),
+              const _InfoBadge(label: 'Est. Time', value: '15 min'),
             ],
           ),
         ],
@@ -131,7 +131,7 @@ class _QueueItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('Pos: $position', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              Text('~${position * 10} min', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+              Text('~${position * 15} min', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
             ],
           ),
         ],

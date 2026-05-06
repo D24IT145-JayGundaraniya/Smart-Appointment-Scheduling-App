@@ -14,12 +14,21 @@ class _SearchScreenState extends State<SearchScreen> {
   String _searchQuery = '';
   String? _selectedStatus;
   DateTime? _selectedDate;
+  String? _selectedService;
+
+  final List<String> _carWashServices = [
+    'Basic Wash',
+    'Full Detail',
+    'Interior Cleaning',
+    'Engine Wash',
+    'Ceramic Coating',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: const Text('Directory', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: const Text('Wash Directory', style: TextStyle(fontWeight: FontWeight.bold))),
       body: Column(
         children: [
           _buildSearchBox(),
@@ -37,7 +46,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: TextField(
         onChanged: (v) => setState(() => _searchQuery = v),
         decoration: InputDecoration(
-          hintText: 'Search patient name...',
+          hintText: 'Search customer name...',
           prefixIcon: const Icon(Icons.search_rounded, size: 20),
           fillColor: Colors.white,
           filled: true,
@@ -69,16 +78,23 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           const SizedBox(width: 8),
           _FilterTag(
+            label: _selectedService ?? 'All Services',
+            icon: Icons.directions_car_filled_outlined,
+            isSelected: _selectedService != null,
+            onTap: _showServicePicker,
+          ),
+          const SizedBox(width: 8),
+          _FilterTag(
             label: _selectedStatus ?? 'All Status',
             icon: Icons.flag_rounded,
             isSelected: _selectedStatus != null,
             onTap: _showStatusPicker,
           ),
-          if (_searchQuery.isNotEmpty || _selectedStatus != null || _selectedDate != null)
+          if (_searchQuery.isNotEmpty || _selectedStatus != null || _selectedDate != null || _selectedService != null)
              Padding(
                padding: const EdgeInsets.only(left: 8),
                child: IconButton(
-                 onPressed: () => setState(() { _searchQuery = ''; _selectedStatus = null; _selectedDate = null; }),
+                 onPressed: () => setState(() { _searchQuery = ''; _selectedStatus = null; _selectedDate = null; _selectedService = null; }),
                  icon: const Icon(Icons.refresh_rounded, size: 20, color: Colors.grey),
                ),
              ),
@@ -88,6 +104,18 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _showStatusPicker() {
+    _showPicker('Filter by Status', ['Scheduled', 'In Progress', 'Completed', 'Cancelled'], _selectedStatus, (val) {
+      setState(() => _selectedStatus = val);
+    });
+  }
+
+  void _showServicePicker() {
+    _showPicker('Filter by Service', _carWashServices, _selectedService, (val) {
+      setState(() => _selectedService = val);
+    });
+  }
+
+  void _showPicker(String title, List<String> options, String? currentVal, Function(String?) onSelected) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -97,15 +125,15 @@ class _SearchScreenState extends State<SearchScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Filter by Status', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
-              children: ['Scheduled', 'In Progress', 'Completed', 'Cancelled'].map((s) => ChoiceChip(
+              children: options.map((s) => ChoiceChip(
                 label: Text(s),
-                selected: _selectedStatus == s,
+                selected: currentVal == s,
                 onSelected: (sel) {
-                  setState(() => _selectedStatus = sel ? s : null);
+                  onSelected(sel ? s : null);
                   Navigator.pop(context);
                 },
               )).toList(),
@@ -122,8 +150,9 @@ class _SearchScreenState extends State<SearchScreen> {
         final results = provider.appointments.where((a) {
           final matchesSearch = a.name.toLowerCase().contains(_searchQuery.toLowerCase()) || a.id.contains(_searchQuery);
           final matchesStatus = _selectedStatus == null || a.status == _selectedStatus;
+          final matchesService = _selectedService == null || a.serviceType == _selectedService;
           final matchesDate = _selectedDate == null || (a.dateTime.year == _selectedDate!.year && a.dateTime.month == _selectedDate!.month && a.dateTime.day == _selectedDate!.day);
-          return matchesSearch && matchesStatus && matchesDate;
+          return matchesSearch && matchesStatus && matchesDate && matchesService;
         }).toList();
 
         if (results.isEmpty) {
@@ -133,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 Icon(Icons.search_off_rounded, size: 64, color: Colors.grey.shade200),
                 const SizedBox(height: 16),
-                const Text('No records match your filters', style: TextStyle(color: Colors.grey)),
+                const Text('No bookings match your filters', style: TextStyle(color: Colors.grey)),
               ],
             ),
           );

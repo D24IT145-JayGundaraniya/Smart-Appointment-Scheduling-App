@@ -167,6 +167,13 @@ class _AdminAppointmentCard extends StatelessWidget {
                     ),
                   const SizedBox(width: 8),
                   _ActionBtn(
+                    label: 'Reschedule',
+                    icon: Icons.edit_calendar_rounded,
+                    color: Colors.blue,
+                    onTap: () => _reschedule(context, appointment),
+                  ),
+                  const SizedBox(width: 8),
+                  _ActionBtn(
                     label: 'Cancel',
                     icon: Icons.close_rounded,
                     color: Colors.red,
@@ -183,6 +190,27 @@ class _AdminAppointmentCard extends StatelessWidget {
   void _update(BuildContext context, String status) {
     appointment.status = status;
     Provider.of<AppointmentProvider>(context, listen: false).updateAppointment(appointment);
+  }
+
+  Future<void> _reschedule(BuildContext context, Appointment appointment) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: appointment.dateTime,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+    );
+
+    if (date != null && context.mounted) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(appointment.dateTime),
+      );
+
+      if (time != null) {
+        appointment.dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        Provider.of<AppointmentProvider>(context, listen: false).updateAppointment(appointment);
+      }
+    }
   }
 
   Color _getStatusColor(String status) {

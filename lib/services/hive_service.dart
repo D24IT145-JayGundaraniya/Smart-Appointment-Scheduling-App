@@ -7,6 +7,8 @@ class HiveService {
   static Future<void> init() async {
     await Hive.initFlutter();
     Hive.registerAdapter(AppointmentAdapter());
+    
+    // Data will now persist across restarts
     await Hive.openBox<Appointment>(appointmentBoxName);
   }
 

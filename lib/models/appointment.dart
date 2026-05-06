@@ -11,23 +11,27 @@ class Appointment extends HiveObject {
   final String name;
 
   @HiveField(2)
-  final String serviceType;
+  DateTime dateTime;
 
   @HiveField(3)
-  final DateTime dateTime;
+  String status; // Scheduled, In Progress, Completed, Cancelled
 
   @HiveField(4)
-  final int queueNumber;
+  final String serviceType;
 
   @HiveField(5)
-  final String status; // Scheduled, In Progress, Completed, Cancelled
+  final int queueNumber;
+
+  @HiveField(6)
+  bool isSynced; // Flag to track if data is synced with a server
 
   Appointment({
     required this.id,
     required this.name,
-    required this.serviceType,
     required this.dateTime,
-    required this.queueNumber,
     required this.status,
+    required this.serviceType,
+    required this.queueNumber,
+    this.isSynced = false, // Default: local data is not synced
   });
 }

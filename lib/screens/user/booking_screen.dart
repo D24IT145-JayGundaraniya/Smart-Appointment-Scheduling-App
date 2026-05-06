@@ -40,10 +40,12 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _bookAppointment() async {
-    if (_nameController.text.isEmpty || _serviceController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+    final name = _nameController.text.trim();
+    final service = _serviceController.text.trim();
+
+    // 1. Validate Empty Fields
+    if (name.isEmpty || service.isEmpty) {
+      _showError('Name and Service Type are required');
       return;
     }
 
@@ -55,33 +57,48 @@ class _BookingScreenState extends State<BookingScreen> {
       _selectedTime.minute,
     );
 
+    // 2. Validate Future Date
+    if (appointmentDateTime.isBefore(DateTime.now())) {
+      _showError('Please select a future date and time');
+      return;
+    }
+
     final provider = Provider.of<AppointmentProvider>(context, listen: false);
     
     final newAppointment = Appointment(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _nameController.text,
-      serviceType: _serviceController.text,
+      name: name,
+      serviceType: service,
       dateTime: appointmentDateTime,
       queueNumber: provider.appointments.length + 1,
       status: 'Scheduled',
     );
 
+    // 3. Prevent Duplicate Bookings (Logic inside Provider)
     final success = await provider.addAppointment(newAppointment);
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appointment Booked Successfully!')),
+        const SnackBar(
+          content: Text('Appointment Booked Successfully!'),
+          backgroundColor: Colors.green,
+        ),
       );
       _nameController.clear();
       _serviceController.clear();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error: This slot is already booked!'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showError('This slot is already booked by someone else!');
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
